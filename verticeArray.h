@@ -35,6 +35,8 @@ public:
 
 	void initializeVertices();
 
+	void initializeVertices(float x, float y);
+
 	void noiseMap(int seed);
 
 	void lowPolyColor();
@@ -44,6 +46,10 @@ public:
 	void setWaterHeight(float waterHeight);
 
 	void setWaterColor();
+
+	VerticeArray createLake(int x, int y, int radius, int height);
+
+	void setZatPoint(int x, int y, float zn);
 
 private:
 	float* vertices;

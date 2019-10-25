@@ -343,10 +343,6 @@ void setLowPolyColor(float* vertices, unsigned int worldLength, unsigned int wor
 	}
 }
 
-void createRivers(float* vertices, unsigned int worldLength, unsigned int worldWidth) {
-
-}
-
 VerticeArray::VerticeArray(int height, int width, VerticeType type) {
 	if (type == LowPoly) {
 		this->arrayType = 6;
@@ -387,6 +383,55 @@ void VerticeArray::initializeVertices() {
 		case 32: vertices[i] = 0.0f; break;
 		}
 	
+	}
+	for (unsigned int i = 0; i < (this->worldHeight - 1); i++) {
+		for (unsigned int j = 0; j < (this->worldWidth - 1); j++) {
+			vertices[j * 36 + i * (worldWidth - 1) * 36] += j;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 6] += j;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 12] += j;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 18] += j;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 24] += j;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 30] += j;
+
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 1] -= i;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 7] -= i;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 13] -= i;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 19] -= i;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 25] -= i;
+			vertices[j * 36 + i * (worldWidth - 1) * 36 + 31] -= i;
+		}
+	}
+}
+
+void VerticeArray::initializeVertices(float x, float y) {
+	for (int i = 0; i < this->getVerticesSize(); i++) {
+		switch (i % 36) {
+			// Bottom left corner
+		case 0: vertices[i] = -1*x; break;
+		case 1: vertices[i] = -1*y; break;
+		case 2: vertices[i] = 0.0f; break;
+			// Bottom right
+		case 6: vertices[i] = x; break;
+		case 7: vertices[i] = -1*y; break;
+		case 8: vertices[i] = 0.0f; break;
+			// Top right
+		case 12: vertices[i] = x; break;
+		case 13: vertices[i] = y; break;
+		case 14: vertices[i] = 0.0f; break;
+			// Top right
+		case 18: vertices[i] = x; break;
+		case 19: vertices[i] = y; break;
+		case 20: vertices[i] = 0.0f; break;
+			// Top left
+		case 24: vertices[i] = -1*x; break;
+		case 25: vertices[i] = y; break;
+		case 26: vertices[i] = 0.0f; break;
+			// Bottom left
+		case 30: vertices[i] = -1*x; break;
+		case 31: vertices[i] = -1*y; break;
+		case 32: vertices[i] = 0.0f; break;
+		}
+
 	}
 	for (unsigned int i = 0; i < (this->worldHeight - 1); i++) {
 		for (unsigned int j = 0; j < (this->worldWidth - 1); j++) {
@@ -631,5 +676,55 @@ void VerticeArray::setWaterColor() {
 		vertices[i * 6 + 3] = 0.0f;
 		vertices[i * 6 + 4] = 102.0f/255.0f;
 		vertices[i * 6 + 5] = 1.0f;
+	}
+}
+
+VerticeArray VerticeArray::createLake(int x,int y,int radius,int height) {
+	float depth = radius / 2.0f;
+	VerticeArray lake(radius*2+1, radius*2+1, LowPoly);
+	lake.initializeVertices(x - radius, y - radius);
+	lake.setWaterHeight(height);
+	for (int i = (-1)*radius; i < radius+1; i++) {
+		for (int j = (-1) * radius; j < radius + 1; j++) {
+			if (j * j + i * i > radius* radius) continue;
+			this->setZatPoint(x + i, y + j, height - depth);
+		}
+	}
+
+	return lake;
+}
+
+void VerticeArray::setZatPoint(int x, int y, float zn) {
+	int height = this->getWorldHeight();
+	int width = this->getWorldWidth();
+	if (x == 0) {
+		if (y < (width - 1)) {
+			vertices[36 * y + 26] = zn;
+		}
+		if (y > 0) {
+			vertices[36 * (y - 1) + 14] = zn;
+			vertices[36 * (y - 1) + 20] = zn;
+		}
+	}
+	else if (x < (height - 1)) {
+		if (y < (width - 1)) {
+			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 2] = zn;
+			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 32] = zn;
+			vertices[(width - 1) * 36 * x + 36 * y + 26] = zn;
+		}
+		if (y > 0) {
+			vertices[(width - 1) * 36 * (x - 1) + 36 * (y - 1) + 8] = zn;
+			vertices[(width - 1) * 36 * x + 36 * (y - 1) + 14] = zn;
+			vertices[(width - 1) * 36 * x + 36 * (y - 1) + 20] = zn;
+		}
+	}
+	if (x == (height - 1)) {
+		if (y < (width - 1)) {
+			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 2] = zn;
+			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 32] = zn;
+		}
+		if (y > 0) {
+			vertices[(width - 1) * 36 * (x - 1) + 36 * (y - 1) + 8] = zn;
+		}
 	}
 }

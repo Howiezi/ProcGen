@@ -5,7 +5,7 @@ class Renderer {
 public:
 	Renderer();
 
-	Renderer(float *data, int size);
+	Renderer(float *data, int size, int id);
 
 	unsigned int getVBO() { return this->VBO; }
 
@@ -13,5 +13,6 @@ public:
 
 private:
 	unsigned int VBO, VAO;
+	int vid;
 
 };

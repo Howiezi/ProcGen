@@ -77,19 +77,21 @@ int main()
 	//initializeVerticeArrayLowPoly(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
 	vertices.noiseMap(3455352);
 	//setLowPolyColor(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
-	vertices.addHighFreq(5653234,100.0f);
-	vertices.addHighFreq(876453,1000.0f);
+	//vertices.addHighFreq(5653234,100.0f);
+	//vertices.addHighFreq(876453,1000.0f);
 	//vertices.addHighFreq(23567653);
+	VerticeArray lake = vertices.createLake(125, 125, 5, 5);
+	lake.setWaterColor();
 	vertices.lowPolyColor();
 
 	VerticeArray water(worldHeight, worldWidth, LowPoly);
-	water.setWaterHeight(3.0f);
+	water.setWaterHeight(0.0f);
 	water.setWaterColor();
 
 	//std::cout << vertices.getVerticesSize() << std::endl;
 	//std::cout << vertices[i * 6 + 4] << std::endl;
 
-	Renderer worldRenderer(vertices.getVertices(), sizeof(float) * vertices.getVerticesSize());
+	Renderer worldRenderer(vertices.getVertices(), sizeof(float) * vertices.getVerticesSize(),1);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertices.getVerticeType() * sizeof(float), (void*)0);
@@ -99,7 +101,7 @@ int main()
 	glVertexAttribPointer(1, vertices.getVerticeType() - 3, GL_FLOAT, GL_FALSE, vertices.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	Renderer waterRenderer(water.getVertices(), sizeof(float) * water.getVerticesSize());
+	Renderer waterRenderer(water.getVertices(), sizeof(float) * water.getVerticesSize(),2);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, water.getVerticeType() * sizeof(float), (void*)0);
@@ -108,11 +110,17 @@ int main()
 	// texture coord attribute
 	glVertexAttribPointer(1, water.getVerticeType() - 3, GL_FLOAT, GL_FALSE, water.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	
+	Renderer lakeRenderer(lake.getVertices(), sizeof(float) * lake.getVerticesSize(),3);
 
-	glDepthRange(0, 1);
-	GLdouble depth;
-	glGetDoublev(GL_DEPTH_RANGE, &depth);
-	std::cout << depth << std::endl;
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, lake.getVerticeType() * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// texture coord attribute
+	glVertexAttribPointer(1, lake.getVerticeType() - 3, GL_FLOAT, GL_FALSE, lake.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// render loop
 	// -----------
@@ -143,7 +151,7 @@ int main()
 		ourShader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 50.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 150.0f);
 		ourShader.setMat4("projection", projection);
 
 		// camera/view transformation
@@ -162,8 +170,12 @@ int main()
 		waterShader.setMat4("projection", projection);
 		waterShader.setMat4("view", view);
 		waterShader.setMat4("model", model);
+
 		glBindVertexArray(waterRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (water.getWorldHeight() - 1) * (water.getWorldWidth() - 1) * 6);
+
+		glBindVertexArray(lakeRenderer.getVAO());
+		glDrawArrays(GL_TRIANGLES, 0, (lake.getWorldHeight() - 1) * (lake.getWorldWidth() - 1) * 6);
 		/*for (unsigned int i = 0; i < 100; i++)
 		{
 			// calculate the model matrix for each object and pass it to shader before drawing
