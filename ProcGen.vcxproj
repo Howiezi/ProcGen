@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="meshRenderer.h" />
     <ClInclude Include="noise.h" />
     <ClInclude Include="ppm.h" />
     <ClInclude Include="renderer.h" />

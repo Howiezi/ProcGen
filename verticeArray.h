@@ -35,7 +35,7 @@ public:
 
 	void initializeVertices();
 
-	void initializeVertices(float x, float y);
+	void translate(int dx, int dy);
 
 	void noiseMap(int seed);
 
@@ -48,6 +48,8 @@ public:
 	void setWaterColor();
 
 	VerticeArray createLake(int x, int y, int radius, int height);
+
+	void createRiver(int sx, int sy, int ex, int ey, float height);
 
 	void setZatPoint(int x, int y, float zn);
 
