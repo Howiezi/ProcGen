@@ -1,4 +1,8 @@
 #include "verticeArray.h"
+unsigned MOUNTS_LIMIT = 50;
+unsigned MOUNTS_FLOOR = 30;
+unsigned MOUNT_TOP = 10;
+unsigned MOUNT_BOTTOM = 7;
 
 void initializeVerticeArrayTextures(float* vertices, unsigned int worldLength, unsigned int worldWidth) {
 	// Noise
@@ -355,7 +359,6 @@ VerticeArray::VerticeArray(int height, int width, VerticeType type) {
 }
 
 void VerticeArray::initializeVertices() {
-	std::cout << getVerticesSize() << std::endl;
 	for (int i = 0; i < this->getVerticesSize(); i++) {
 		switch (i % 36) {
 			// Bottom left corner
@@ -492,6 +495,50 @@ void VerticeArray::noiseMap(int seed) {
 	}
 
 	image.write("noisemap.ppm");
+}
+
+void VerticeArray::createMountains() {
+	int mounts = rand() % MOUNTS_LIMIT + MOUNTS_FLOOR;
+	int height = this->getWorldHeight();
+	int width = this->getWorldWidth();
+	for (unsigned i = 0; i < mounts; ++i) {
+		int x = rand() % width;
+		int y = rand() % height;
+		int z = rand() % MOUNT_TOP + MOUNT_BOTTOM;
+		this->setZatPoint(x, y, z);
+	}
+}
+
+float VerticeArray::bilinearInterpolation(float bottomLeft, float topLeft, float bottomRight, float topRight, float xMin, float xMax, float yMin, float yMax, float xToCalc, float yToCalc) {
+	float width = xMax - xMin;
+	float height = yMax - yMin;
+	float xDistanceToMaxValue = xMax - xToCalc;
+	float yDistanceToMaxValue = yMax - yToCalc;
+	float xDistanceToMinValue = xToCalc - xMin;
+	float yDistanceToMinValue = yToCalc - yMin;
+
+	return 1.0f / (width * height) * (
+		bottomLeft * xDistanceToMaxValue * yDistanceToMaxValue +
+		bottomRight * xDistanceToMinValue * yDistanceToMaxValue +
+		topLeft * xDistanceToMaxValue * yDistanceToMinValue +
+		topRight * xDistanceToMinValue * yDistanceToMinValue
+		);
+}
+
+void VerticeArray::getHeightInterpol(int xMin, int yMin, int xMax, int yMax) {
+	float bottomLeft = this->getZat(xMin, yMin);
+	float bottomRight = this->getZat(xMax, yMin);
+	float topLeft = this->getZat(xMin, yMax);
+	float topRight = this->getZat(xMax, yMax);
+
+	for (int x = xMin; x < xMax; ++x) {
+		for (int y = yMin; y < yMax; y++) {
+			float h = bilinearInterpolation(bottomLeft, topLeft, bottomRight, topRight,
+				(float)xMin, (float)xMax, (float)yMin, (float)yMax, x, y);
+
+			this->setZatPoint(x, y, h);
+		}
+	}
 }
 
 void VerticeArray::lowPolyColor() {
@@ -670,59 +717,78 @@ VerticeArray VerticeArray::createLake(int x,int y,int radius,int height) {
 	return lake;
 }
 
-void VerticeArray::createRiver(int sx, int sy, int ex, int ey, float height) {
+VerticeArray VerticeArray::createRiver(int sx, int sy, int ex, int ey, float height) {
 	int lenx = ex - sx;
 	int leny = ey - sy;
 	float dh = height / (lenx + leny);
+	VerticeArray river(lenx+1, leny+1, LowPoly);
+	river.translate(sx-6, sy+5);
+	float riverHeight = height + 0.9f;
 	for (int i = 0; i < lenx+1; i++) {
 		this->setZatPoint(sx + i, sy, height);
 		this->setZatPoint(sx + i, sy + 1, height + 1);
 		this->setZatPoint(sx + i, sy - 1, height + 1);
+		river.setZatPoint(i, 2, riverHeight);
+		river.setZatPoint(i, 1, riverHeight);
+		river.setZatPoint(i, 0, riverHeight);
 		height -= dh;
+		riverHeight -= dh;
 	}
+	height += dh;
+	riverHeight += dh;
 	this->setZatPoint(sx + lenx + 1, sy - 1, height+1);
 	this->setZatPoint(sx + lenx + 1, sy, height+1);
-	for (int i = 0; i < leny+1; i++) {
+	river.setZatPoint(lenx + 1, 1, riverHeight);
+	river.setZatPoint(lenx + 1, 0, riverHeight);
+	for (int i = 1; i < leny+1; i++) {
 		this->setZatPoint(sx + lenx, sy + i, height);
-		if (i > 0) {
-			this->setZatPoint(sx + lenx + 1, sy + i, height + 1);
-			this->setZatPoint(sx + lenx - 1, sy + i, height + 1);
-		}
+		this->setZatPoint(sx + lenx + 1, sy + i, height + 1);
+		this->setZatPoint(sx + lenx - 1, sy + i, height + 1);
+		river.setZatPoint(lenx + 1, i, riverHeight);
+		river.setZatPoint(lenx, i, riverHeight);
+		river.setZatPoint(lenx - 1, i, riverHeight);
 		height -= dh;
+		riverHeight -= dh;
 	}
+	return river;
 }
 
 void VerticeArray::setZatPoint(int x, int y, float zn) {
 	int height = this->getWorldHeight();
 	int width = this->getWorldWidth();
-	if (x == 0) {
-		if (y < (width - 1)) {
-			vertices[36 * y + 26] = zn;
+	if (y == 0) {
+		if (x < (width - 1)) {
+			vertices[36 * x + 26] = zn;
 		}
-		if (y > 0) {
-			vertices[36 * (y - 1) + 14] = zn;
-			vertices[36 * (y - 1) + 20] = zn;
-		}
-	}
-	else if (x < (height - 1)) {
-		if (y < (width - 1)) {
-			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 2] = zn;
-			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 32] = zn;
-			vertices[(width - 1) * 36 * x + 36 * y + 26] = zn;
-		}
-		if (y > 0) {
-			vertices[(width - 1) * 36 * (x - 1) + 36 * (y - 1) + 8] = zn;
-			vertices[(width - 1) * 36 * x + 36 * (y - 1) + 14] = zn;
-			vertices[(width - 1) * 36 * x + 36 * (y - 1) + 20] = zn;
+		if (x > 0) {
+			vertices[36 * (x - 1) + 14] = zn;
+			vertices[36 * (x - 1) + 20] = zn;
 		}
 	}
-	if (x == (height - 1)) {
-		if (y < (width - 1)) {
-			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 2] = zn;
-			vertices[(width - 1) * 36 * (x - 1) + 36 * y + 32] = zn;
+	else if (y < (height - 1)) {
+		if (x < (width - 1)) {
+			vertices[(width - 1) * 36 * (y - 1) + 36 * x + 2] = zn;
+			vertices[(width - 1) * 36 * (y - 1) + 36 * x + 32] = zn;
+			vertices[(width - 1) * 36 * y + 36 * x + 26] = zn;
 		}
-		if (y > 0) {
-			vertices[(width - 1) * 36 * (x - 1) + 36 * (y - 1) + 8] = zn;
+		if (x > 0) {
+			vertices[(width - 1) * 36 * (y - 1) + 36 * (x - 1) + 8] = zn;
+			vertices[(width - 1) * 36 * y + 36 * (x - 1) + 14] = zn;
+			vertices[(width - 1) * 36 * y + 36 * (x - 1) + 20] = zn;
 		}
 	}
+	if (y == (height - 1)) {
+		if (x < (width - 1)) {
+			vertices[(width - 1) * 36 * (y - 1) + 36 * x + 2] = zn;
+			vertices[(width - 1) * 36 * (y - 1) + 36 * x + 32] = zn;
+		}
+		if (x > 0) {
+			vertices[(width - 1) * 36 * (y - 1) + 36 * (x - 1) + 8] = zn;
+		}
+	}
+}
+
+float VerticeArray::getZat(int x,int y) {
+	int width = this->getWorldWidth();
+	return this->vertices[(width - 1) * 36 * y + 36 * x + 26];
 }

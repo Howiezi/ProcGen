@@ -76,19 +76,24 @@ int main()
 	//initializeVerticesLowPoly(vertices.getVertices(), vertices.getVerticesSize());
 	//initializeVerticeArrayLowPoly(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
 	vertices.noiseMap(3455352);
+	//vertices.createMountains();
 	//setLowPolyColor(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
 	//vertices.addHighFreq(5653234,100.0f);
 	//vertices.addHighFreq(876453,1000.0f);
 	//vertices.addHighFreq(23567653);
 	VerticeArray lake = vertices.createLake(125, 125, 5, 5);
 	//VerticeArray lake(15, 15, LowPoly);
-	vertices.createRiver(130, 125, 150, 150, 5);
+	VerticeArray river = vertices.createRiver(130, 125, 150, 150, 5);
+
+	river.setWaterColor();
 	lake.setWaterColor();
+
 	vertices.lowPolyColor();
 
 	VerticeArray water(worldHeight, worldWidth, LowPoly);
-	water.setWaterHeight(3.0f);
+	water.setWaterHeight(-1.0f);
 	water.setWaterColor();
+
 
 	//std::cout << vertices.getVerticesSize() << std::endl;
 	//std::cout << vertices[i * 6 + 4] << std::endl;
@@ -129,7 +134,17 @@ int main()
 	glVertexAttribPointer(1, lake.getVerticeType() - 3, GL_FLOAT, GL_FALSE, lake.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	Renderer riverRenderer(4);
 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * river.getVerticesSize(), river.getVertices(), GL_STATIC_DRAW);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, river.getVerticeType() * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// texture coord attribute
+	glVertexAttribPointer(1, river.getVerticeType() - 3, GL_FLOAT, GL_FALSE, river.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// render loop
@@ -187,6 +202,9 @@ int main()
 
 		glBindVertexArray(lakeRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (lake.getWorldHeight() - 1) * (lake.getWorldWidth() - 1) * 6);
+
+		glBindVertexArray(riverRenderer.getVAO());
+		glDrawArrays(GL_TRIANGLES, 0, (river.getWorldHeight() - 1) * (river.getWorldWidth() - 1) * 6);
 		/*for (unsigned int i = 0; i < 100; i++)
 		{
 			// calculate the model matrix for each object and pass it to shader before drawing

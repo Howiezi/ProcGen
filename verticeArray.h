@@ -39,6 +39,12 @@ public:
 
 	void noiseMap(int seed);
 
+	void createMountains();
+
+	float bilinearInterpolation(float bottomleft, float topLeft, float bottomRight, float topRight, float xMin, float xMax, float yMin, float yMax, float xToCalc, float yToCalc);
+
+	void getHeightInterpol(int xMin, int yMin, int xMax, int yMax);
+
 	void lowPolyColor();
 
 	void addHighFreq(int seed, float freq);
@@ -49,9 +55,11 @@ public:
 
 	VerticeArray createLake(int x, int y, int radius, int height);
 
-	void createRiver(int sx, int sy, int ex, int ey, float height);
+	VerticeArray createRiver(int sx, int sy, int ex, int ey, float height);
 
 	void setZatPoint(int x, int y, float zn);
+
+	float getZat(int x, int y);
 
 private:
 	float* vertices;
