@@ -56,6 +56,8 @@ public:
 	VerticeArray createLake(int x, int y, int radius, int height);
 
 	VerticeArray createRiver(int sx, int sy, int ex, int ey, float height);
+	
+	VerticeArray createRiver(int startX, int startY);
 
 	void setZatPoint(int x, int y, float zn);
 

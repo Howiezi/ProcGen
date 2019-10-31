@@ -753,6 +753,17 @@ VerticeArray VerticeArray::createRiver(int sx, int sy, int ex, int ey, float hei
 	return river;
 }
 
+VerticeArray VerticeArray::createRiver(int startX, int startY) {
+	float height = this->getZat(startX, startY);
+	int length = rand() % 80 + 40;
+	VerticeArray river(length, 3, LowPoly);
+	for (int i = 0; i < length; i++) {
+		int nextDirection = rand() % 2 - 1;
+
+	}
+	return river;
+}
+
 void VerticeArray::setZatPoint(int x, int y, float zn) {
 	int height = this->getWorldHeight();
 	int width = this->getWorldWidth();

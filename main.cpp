@@ -14,6 +14,8 @@
 #include "window.h"
 #include "renderer.h"
 
+#include "meshRenderer.h"
+
 #include <iostream>
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -146,6 +148,18 @@ int main()
 	glVertexAttribPointer(1, river.getVerticeType() - 3, GL_FLOAT, GL_FALSE, river.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	Mesh worldMesh(worldHeight, worldWidth);
+	worldMesh.initializeAtZero();
+	GLobject meshGLobject;
+	//float* world = worldMesh.getvertices();
+	//for (int i = 0; i < 300; i++) {
+	//	std::cout << world[2+i*12] << std::endl;
+	//}
+	unsigned* ind = worldMesh.getindices();
+	for (int i = 0; i < 300; i++) {
+		std::cout << ind[0 + i * 6] << std::endl;
+	}
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// render loop
 	// -----------
@@ -178,16 +192,18 @@ int main()
 		// pass projection matrix to shader (note that in this case it could change every frame)
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 150.0f);
 		ourShader.setMat4("projection", projection);
-
+		
 		// camera/view transformation
 		glm::mat4 view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
-
+		
 		// render boxes
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-1.0f * vertices.getWorldHeight() / 2.0f, -10.0f, -1.0f * vertices.getWorldWidth() / 2.0f));
 		model = glm::rotate(model, (float)glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
+
+		drawMesh(worldMesh, meshGLobject.getVAO(), meshGLobject.getVBO(), meshGLobject.getEBO());
 
 		glBindVertexArray(worldRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (vertices.getWorldHeight() - 1) * (vertices.getWorldWidth() - 1) *6);
@@ -199,10 +215,10 @@ int main()
 		
 		glBindVertexArray(waterRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (water.getWorldHeight() - 1) * (water.getWorldWidth() - 1) * 6);
-
+		
 		glBindVertexArray(lakeRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (lake.getWorldHeight() - 1) * (lake.getWorldWidth() - 1) * 6);
-
+		
 		glBindVertexArray(riverRenderer.getVAO());
 		glDrawArrays(GL_TRIANGLES, 0, (river.getWorldHeight() - 1) * (river.getWorldWidth() - 1) * 6);
 		/*for (unsigned int i = 0; i < 100; i++)
