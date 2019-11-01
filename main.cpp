@@ -151,18 +151,27 @@ int main()
 
 	Mesh worldMesh(worldHeight, worldWidth);
 	worldMesh.initializeAtZero();
-	worldMesh.bindData();
+	worldMesh.noisemap(46234);
+	Mesh riverMesh = worldMesh.createRiver(100, 100);
 	float* world = worldMesh.getvertices();
 	for (int i = 0; i < 100; i++) {
-		std::cout << world[0+i*12] << " " << world[1*12] << std::endl;
+		//std::cout << world[0 + i * 3] << " " << world[1 + i * 3] << " " << world[2 + i * 3] << std::endl;
 	}
+
+	float* rvv = riverMesh.getvertices();
+	for (int i = 0; i < 100; i++) {
+		std::cout << rvv[0 + i * 3] << " " << rvv[1 + i * 3] << " " << rvv[2 + i * 3] << std::endl;
+	}
+
+	worldMesh.bindData();
+	riverMesh.bindData();
 	
 	//unsigned* ind = worldMesh.getindices();
 	//for (int i = 0; i < 300; i++) {
 	//	std::cout << ind[0 + i * 6] << std::endl;
 	//}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window.getWindow()))
@@ -206,6 +215,12 @@ int main()
 		ourShader.setMat4("model", model);
 
 		worldMesh.drawMesh();
+		waterShader.use();
+		waterShader.setMat4("projection", projection);
+		waterShader.setMat4("view", view);
+		waterShader.setMat4("model", model);
+		riverMesh.drawMesh();
+
 
 		//glBindVertexArray(worldRenderer.getVAO());
 		//glDrawArrays(GL_TRIANGLES, 0, (vertices.getWorldHeight() - 1) * (vertices.getWorldWidth() - 1) *6);
@@ -247,6 +262,8 @@ int main()
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO2);
 	glDeleteBuffers(1, &VBO2);*/
+	worldMesh.deleteMeshBuffers();
+	riverMesh.deleteMeshBuffers();
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------

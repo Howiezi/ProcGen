@@ -24,8 +24,16 @@ public:
 	void setHeight(unsigned x, unsigned y, float z);
 
 	void initializeAtZero();
+	void translateMesh(int dx, int dy);
+
 	void bindData();
 	void drawMesh();
+
+	void noisemap(int seed);
+
+	Mesh createRiver(int startx, int starty);
+
+	void deleteMeshBuffers();
 
 private:
 	unsigned length;
