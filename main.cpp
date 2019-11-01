@@ -1,3 +1,4 @@
+#pragma once
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
@@ -14,7 +15,7 @@
 #include "window.h"
 #include "renderer.h"
 
-#include "meshRenderer.h"
+#include "mesh.h"
 
 #include <iostream>
 
@@ -38,8 +39,8 @@ void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-int worldWidth = 250;
-int worldHeight = 250;
+int worldWidth = 10;
+int worldHeight = 10;
 VerticeType worldType = LowPoly;
 
 int main()
@@ -150,17 +151,18 @@ int main()
 
 	Mesh worldMesh(worldHeight, worldWidth);
 	worldMesh.initializeAtZero();
-	GLobject meshGLobject;
-	//float* world = worldMesh.getvertices();
-	//for (int i = 0; i < 300; i++) {
-	//	std::cout << world[2+i*12] << std::endl;
-	//}
-	unsigned* ind = worldMesh.getindices();
-	for (int i = 0; i < 300; i++) {
-		std::cout << ind[0 + i * 6] << std::endl;
+	worldMesh.bindData();
+	float* world = worldMesh.getvertices();
+	for (int i = 0; i < 100; i++) {
+		std::cout << world[0+i*12] << " " << world[1*12] << std::endl;
 	}
+	
+	//unsigned* ind = worldMesh.getindices();
+	//for (int i = 0; i < 300; i++) {
+	//	std::cout << ind[0 + i * 6] << std::endl;
+	//}
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window.getWindow()))
@@ -203,24 +205,24 @@ int main()
 		model = glm::rotate(model, (float)glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
 
-		drawMesh(worldMesh, meshGLobject.getVAO(), meshGLobject.getVBO(), meshGLobject.getEBO());
+		worldMesh.drawMesh();
 
-		glBindVertexArray(worldRenderer.getVAO());
-		glDrawArrays(GL_TRIANGLES, 0, (vertices.getWorldHeight() - 1) * (vertices.getWorldWidth() - 1) *6);
-		
-		waterShader.use();
-		waterShader.setMat4("projection", projection);
-		waterShader.setMat4("view", view);
-		waterShader.setMat4("model", model);
-		
-		glBindVertexArray(waterRenderer.getVAO());
-		glDrawArrays(GL_TRIANGLES, 0, (water.getWorldHeight() - 1) * (water.getWorldWidth() - 1) * 6);
-		
-		glBindVertexArray(lakeRenderer.getVAO());
-		glDrawArrays(GL_TRIANGLES, 0, (lake.getWorldHeight() - 1) * (lake.getWorldWidth() - 1) * 6);
-		
-		glBindVertexArray(riverRenderer.getVAO());
-		glDrawArrays(GL_TRIANGLES, 0, (river.getWorldHeight() - 1) * (river.getWorldWidth() - 1) * 6);
+		//glBindVertexArray(worldRenderer.getVAO());
+		//glDrawArrays(GL_TRIANGLES, 0, (vertices.getWorldHeight() - 1) * (vertices.getWorldWidth() - 1) *6);
+		//
+		//waterShader.use();
+		//waterShader.setMat4("projection", projection);
+		//waterShader.setMat4("view", view);
+		//waterShader.setMat4("model", model);
+		//
+		//glBindVertexArray(waterRenderer.getVAO());
+		//glDrawArrays(GL_TRIANGLES, 0, (water.getWorldHeight() - 1) * (water.getWorldWidth() - 1) * 6);
+		//
+		//glBindVertexArray(lakeRenderer.getVAO());
+		//glDrawArrays(GL_TRIANGLES, 0, (lake.getWorldHeight() - 1) * (lake.getWorldWidth() - 1) * 6);
+		//
+		//glBindVertexArray(riverRenderer.getVAO());
+		//glDrawArrays(GL_TRIANGLES, 0, (river.getWorldHeight() - 1) * (river.getWorldWidth() - 1) * 6);
 		/*for (unsigned int i = 0; i < 100; i++)
 		{
 			// calculate the model matrix for each object and pass it to shader before drawing

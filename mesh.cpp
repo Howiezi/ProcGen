@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "GLFunctions.h"
 
 Mesh::Mesh(unsigned length, unsigned width) {
 	this->length = length;
@@ -7,6 +8,10 @@ Mesh::Mesh(unsigned length, unsigned width) {
 	this->indicesSize = (length - 1) * (width - 1) * 6;
 	this->vertices = new float[verticesSize];
 	this->indices = new unsigned[indicesSize];
+
+	this->VAO = GLgenVAO();
+	this->VBO = GLgenVBO();
+	this->EBO = GLgenEBO();
 }
 
 float Mesh::getHeight(unsigned x, unsigned y) {
@@ -45,4 +50,22 @@ void Mesh::initializeAtZero() {
 		indices[4 + i * 6] = i * 3 + 3 * width;
 		indices[5 + i * 6] = i * 3 + 3 * width + 3;
 	}
+}
+
+void Mesh::bindData() {
+	GLbindVAO(VAO);
+	GLbindVBO(VBO);
+	GLbufferVBO(vertices, verticesSize);
+	GLbindEBO(EBO);
+	GLbufferEBO(indices, indicesSize);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	//GLunbindVBO();
+	//GLunbindVAO();
+}
+
+void Mesh::drawMesh() {
+	GLbindVAO(VAO);
+	GLdrawEBOTriangles(indicesSize);
+	GLunbindVAO();
 }

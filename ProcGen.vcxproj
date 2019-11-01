@@ -145,7 +145,6 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="GLFunctions.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="meshRenderer.h" />
     <ClInclude Include="noise.h" />
     <ClInclude Include="ppm.h" />
     <ClInclude Include="renderer.h" />

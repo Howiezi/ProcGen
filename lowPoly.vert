@@ -12,4 +12,5 @@ void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     ourColor = aColor; // set ourColor to the input color we got from the vertex data
+	ourColor = vec3(1,1,1);
 }    

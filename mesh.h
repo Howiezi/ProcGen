@@ -16,10 +16,16 @@ public:
 	float* getvertices() { return vertices; }
 	unsigned* getindices() { return indices; }
 
+	unsigned getVAO() { return VAO; }
+	unsigned getVBO() { return VBO; }
+	unsigned getEBO() { return EBO; }
+
 	float getHeight(unsigned x, unsigned y);
 	void setHeight(unsigned x, unsigned y, float z);
 
 	void initializeAtZero();
+	void bindData();
+	void drawMesh();
 
 private:
 	unsigned length;
@@ -28,4 +34,6 @@ private:
 	unsigned indicesSize;
 	float* vertices;
 	unsigned* indices;
+
+	unsigned VAO, VBO, EBO;
 };
