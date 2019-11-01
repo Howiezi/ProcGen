@@ -24,31 +24,19 @@ void Mesh::setHeight(unsigned x, unsigned y, float height) {
 
 void Mesh::initializeAtZero() {
 	std::cout << width << std::endl;
-	for (unsigned i = 0; i < verticesSize / 12; i++) {
-		vertices[i * 12] = -0.5f + i % width;
-		vertices[1 + i * 12] = -0.5f + i / width;
-		vertices[2 + i * 12] = 0.0f;
-
-		vertices[3 + i * 12] = 0.5f + i % width;
-		vertices[4 + i * 12] = -0.5f + i / width;
-		vertices[5 + i * 12] = 0.0f;
-
-		vertices[6 + i * 12] = 0.5f + i % width;
-		vertices[7 + i * 12] = 0.5f + i / width;
-		vertices[8 + i * 12] = 0.0f;
-
-		vertices[9 + i * 12] = -0.5f + i % width;
-		vertices[10 + i * 12] = 0.5f + i / width;
-		vertices[11 + i * 12] = 0.0f;
+	for (unsigned i = 0; i < verticesSize / 3; i++) {
+		vertices[i * 3] = 0.0f + i % width;
+		vertices[1 + i * 3] = 0.0f + i / width;
+		vertices[2 + i * 3] = 0.0f;
 	}
 	
 	for (unsigned i = 0; i < indicesSize/6; i++) {
-		indices[i * 6] = i * 3;
-		indices[1 + i * 6] = i * 3 + 3;
-		indices[2 + i * 6] = i * 3 + 3 * width;
-		indices[3 + i * 6] = i * 3 + 3;
-		indices[4 + i * 6] = i * 3 + 3 * width;
-		indices[5 + i * 6] = i * 3 + 3 * width + 3;
+		indices[i * 6] = i / (width - 1) + i;
+		indices[1 + i * 6] = i / (width - 1) + i + 1;
+		indices[2 + i * 6] = i / (width - 1) + i + width;
+		indices[3 + i * 6] = i / (width - 1) + i + 1;
+		indices[4 + i * 6] = i / (width - 1) + i + width;
+		indices[5 + i * 6] = i / (width - 1) + i + width + 1;
 	}
 }
 
