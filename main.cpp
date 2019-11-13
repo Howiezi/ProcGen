@@ -71,88 +71,11 @@ int main()
 	Shader ourShader("lowPoly.vert", "lowPoly.frag");
 	Shader waterShader("water.vert", "water.frag");
 
-	// Initialize Array
-	// ----------------
-	//initializeVerticesTexture(vertices, worldLength * worldWidth * onePoint * verticesAmount);
-	//initializeVerticeArrayTextures(vertices, worldLength, worldWidth);
-	VerticeArray vertices(worldHeight, worldWidth, LowPoly);
-	//initializeVerticesLowPoly(vertices.getVertices(), vertices.getVerticesSize());
-	//initializeVerticeArrayLowPoly(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
-	vertices.noiseMap(3455352);
-	//vertices.createMountains();
-	//setLowPolyColor(vertices.getVertices(), vertices.getWorldHeight(), vertices.getWorldWidth());
-	//vertices.addHighFreq(5653234,100.0f);
-	//vertices.addHighFreq(876453,1000.0f);
-	//vertices.addHighFreq(23567653);
-	VerticeArray lake = vertices.createLake(125, 125, 5, 5);
-	//VerticeArray lake(15, 15, LowPoly);
-	VerticeArray river = vertices.createRiver(130, 125, 150, 150, 5);
-
-	river.setWaterColor();
-	lake.setWaterColor();
-
-	vertices.lowPolyColor();
-
-	VerticeArray water(worldHeight, worldWidth, LowPoly);
-	water.setWaterHeight(-1.0f);
-	water.setWaterColor();
-
-
-	//std::cout << vertices.getVerticesSize() << std::endl;
-	//std::cout << vertices[i * 6 + 4] << std::endl;
-
-	Renderer worldRenderer(1);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.getVerticesSize(), vertices.getVertices(), GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertices.getVerticeType() * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// color attribute
-	glVertexAttribPointer(1, vertices.getVerticeType() - 3, GL_FLOAT, GL_FALSE, vertices.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	Renderer waterRenderer(2);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * water.getVerticesSize(), water.getVertices(), GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, water.getVerticeType() * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// texture coord attribute
-	glVertexAttribPointer(1, water.getVerticeType() - 3, GL_FLOAT, GL_FALSE, water.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
-	Renderer lakeRenderer(3);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lake.getVerticesSize(), lake.getVertices(), GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, lake.getVerticeType() * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// texture coord attribute
-	glVertexAttribPointer(1, lake.getVerticeType() - 3, GL_FLOAT, GL_FALSE, lake.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	Renderer riverRenderer(4);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * river.getVerticesSize(), river.getVertices(), GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, river.getVerticeType() * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// texture coord attribute
-	glVertexAttribPointer(1, river.getVerticeType() - 3, GL_FLOAT, GL_FALSE, river.getVerticeType() * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
 	Mesh worldMesh(worldHeight, worldWidth);
 	worldMesh.initializeAtZero();
 	worldMesh.noisemap(46234);
-	Mesh riverMesh = worldMesh.createRiver(100, 100);
+	Mesh riverMesh = worldMesh.createStraightRiver(100, 100);
+	Mesh worldColorMesh = worldMesh.createColorMesh();
 	float* world = worldMesh.getvertices();
 	for (int i = 0; i < 100; i++) {
 		//std::cout << world[0 + i * 3] << " " << world[1 + i * 3] << " " << world[2 + i * 3] << std::endl;
@@ -163,8 +86,14 @@ int main()
 		std::cout << rvv[0 + i * 3] << " " << rvv[1 + i * 3] << " " << rvv[2 + i * 3] << std::endl;
 	}
 
-	worldMesh.bindData();
-	riverMesh.bindData();
+	float* wcv = worldColorMesh.getvertices();
+	for (int i = 0; i < 100; i++) {
+		std::cout << wcv[0 + i * 3] << " " << wcv[1 + i * 3] << " " << wcv[2 + i * 3] << std::endl;
+	}
+
+	worldMesh.bindData(0);
+	riverMesh.bindData(0);
+	worldColorMesh.bindData(1);
 	
 	//unsigned* ind = worldMesh.getindices();
 	//for (int i = 0; i < 300; i++) {
@@ -210,7 +139,7 @@ int main()
 		
 		// render boxes
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-1.0f * vertices.getWorldHeight() / 2.0f, -10.0f, 1.0f * vertices.getWorldWidth() / 2.0f));
+		model = glm::translate(model, glm::vec3(-1.0f * worldMesh.getLength() / 2.0f, -10.0f, 1.0f * worldMesh.getWidth() / 2.0f));
 		model = glm::rotate(model, (float)glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
 
@@ -264,6 +193,7 @@ int main()
 	glDeleteBuffers(1, &VBO2);*/
 	worldMesh.deleteMeshBuffers();
 	riverMesh.deleteMeshBuffers();
+	worldColorMesh.deleteMeshBuffers();
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
