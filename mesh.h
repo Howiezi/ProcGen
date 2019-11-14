@@ -7,7 +7,8 @@
 
 class Mesh {
 public:
-	Mesh(unsigned length, unsigned width);
+	Mesh(unsigned newlength, unsigned newwidth);
+	Mesh(Mesh world, Mesh color);
 
 	unsigned getLength() { return length; }
 	unsigned getWidth() { return width; }
@@ -26,7 +27,8 @@ public:
 	void initializeAtZero();
 	void translateMesh(int dx, int dy);
 
-	void bindData(int location);
+	void bindData();
+	void bindColor();
 	void drawMesh();
 
 	void noisemap(int seed);

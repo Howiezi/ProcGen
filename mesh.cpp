@@ -1,17 +1,39 @@
 #include "mesh.h"
 #include "GLFunctions.h"
 
-Mesh::Mesh(unsigned length, unsigned width) {
-	this->length = length;
-	this->width = width;
-	this->verticesSize = length * width * 3;
-	this->indicesSize = (length - 1) * (width - 1) * 6;
+Mesh::Mesh(unsigned newlength, unsigned newwidth) {
+	this->length = newlength;
+	this->width = newwidth;
+	this->verticesSize = newlength * newwidth * 3;
+	this->indicesSize = (newlength - 1) * (newwidth - 1) * 6;
 	this->vertices = new float[verticesSize];
 	this->indices = new unsigned[indicesSize];
 
 	this->VAO = GLgenVAO();
 	this->VBO = GLgenVBO();
 	this->EBO = GLgenEBO();
+}
+
+Mesh::Mesh(Mesh world, Mesh color) {
+	length = world.getLength() + color.getLength();
+	width = world.getWidth();
+	verticesSize = length * width * 3;
+	indicesSize = (world.getLength() - 1) * (world.getWidth() - 1) * 6;
+	vertices = new float[verticesSize];
+	indices = new unsigned[indicesSize];
+	for (int i = 0; i < world.getVerticesSize() + color.getVerticesSize(); i++) {
+		if (i < world.getVerticesSize()) {
+			vertices[i] = world.getvertices()[i];
+		}
+		else {
+			vertices[i] = color.getvertices()[i - world.getVerticesSize()];
+		}
+	}
+	indices = world.getindices();
+
+	VAO = GLgenVAO();
+	VBO = GLgenVBO();
+	EBO = GLgenEBO();
 }
 
 float Mesh::getHeight(unsigned x, unsigned y) {
@@ -49,16 +71,26 @@ void Mesh::translateMesh(int dx, int dy) {
 	}
 }
 
-void Mesh::bindData(int location) {
+void Mesh::bindData() {
 	GLbindVAO(VAO);
 	GLbindVBO(VBO);
 	GLbufferVBO(vertices, verticesSize);
 	GLbindEBO(EBO);
 	GLbufferEBO(indices, indicesSize);
-	glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(location);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(verticesSize/2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	GLunbindVBO();
 	GLunbindVAO();
+}
+
+void Mesh::bindColor() {
+	GLbindVAO(VAO);
+	GLbindVBO(VBO);
+	GLbufferVBO(vertices, verticesSize);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
 }
 
 void Mesh::drawMesh() {

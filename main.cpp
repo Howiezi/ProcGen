@@ -83,17 +83,23 @@ int main()
 
 	float* rvv = riverMesh.getvertices();
 	for (int i = 0; i < 100; i++) {
-		std::cout << rvv[0 + i * 3] << " " << rvv[1 + i * 3] << " " << rvv[2 + i * 3] << std::endl;
+		//std::cout << rvv[0 + i * 3] << " " << rvv[1 + i * 3] << " " << rvv[2 + i * 3] << std::endl;
 	}
 
 	float* wcv = worldColorMesh.getvertices();
 	for (int i = 0; i < 100; i++) {
-		std::cout << wcv[0 + i * 3] << " " << wcv[1 + i * 3] << " " << wcv[2 + i * 3] << std::endl;
+		//std::cout << wcv[0 + i * 3] << " " << wcv[1 + i * 3] << " " << wcv[2 + i * 3] << std::endl;
 	}
 
-	worldMesh.bindData(0);
-	riverMesh.bindData(0);
-	worldColorMesh.bindData(1);
+	Mesh fullWorld(worldMesh, worldColorMesh);
+
+	//for (int i = worldMesh.getVerticesSize(); i < fullWorld.getVerticesSize(); i++) {
+	//	std::cout << fullWorld.getvertices()[i] << std::endl;
+	//}
+	std::cout << fullWorld.getVerticesSize() << std::endl;
+
+	fullWorld.bindData();
+	riverMesh.bindData();
 	
 	//unsigned* ind = worldMesh.getindices();
 	//for (int i = 0; i < 300; i++) {
@@ -143,7 +149,8 @@ int main()
 		model = glm::rotate(model, (float)glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
 
-		worldMesh.drawMesh();
+		fullWorld.drawMesh();
+		//worldMesh.drawMesh();
 		waterShader.use();
 		waterShader.setMat4("projection", projection);
 		waterShader.setMat4("view", view);
