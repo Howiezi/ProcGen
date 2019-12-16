@@ -4,6 +4,8 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+const int CHUNK_Z = 16;
+const int CHUNK_X = 16;
 
 class Mesh {
 public:
@@ -32,6 +34,7 @@ public:
 	void drawMesh();
 
 	void noisemap(int seed);
+	void createMountain(int x, int y);
 
 	Mesh createStraightRiver(int startx, int starty);
 	Mesh createCurvyRiver(int startx, int starty);
@@ -41,6 +44,7 @@ public:
 	Mesh createColorMesh();
 
 	void deleteMeshBuffers();
+
 
 private:
 	unsigned length;
@@ -54,3 +58,7 @@ private:
 };
 
 float bilinearInterpolation(float bottomLeft, float topLeft, float bottomRight, float topRight, float xMin, float xMax, float yMin, float yMax, float xToCalc, float yToCalc);
+
+float fade(float z);
+
+float fadeInterpolation(float nearValue, float farValue, int polValue);

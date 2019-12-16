@@ -3,6 +3,7 @@
 #include <random>
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 
 // THIS IS A DIRECT TRANSLATION TO C++11 FROM THE REFERENCE
 // JAVA IMPLEMENTATION OF THE IMPROVED PERLIN FUNCTION (see http://mrl.nyu.edu/~perlin/noise/)
@@ -82,6 +83,7 @@ double PerlinNoise::fade(double t) {
 }
 
 double PerlinNoise::lerp(double t, double a, double b) {
+	//std::cout << "t: " << t << " a: " << a << " b: " << b << " = " << a + t * (b - a) << std::endl;
 	return a + t * (b - a);
 }
 

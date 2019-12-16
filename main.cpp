@@ -39,8 +39,8 @@ void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-int worldWidth = 250;
-int worldHeight = 250;
+int worldWidth = 256;
+int worldHeight = 256;
 VerticeType worldType = LowPoly;
 
 int main()
@@ -74,7 +74,16 @@ int main()
 	Mesh worldMesh(worldHeight, worldWidth);
 	worldMesh.initializeAtZero();
 	worldMesh.noisemap(46234);
+	worldMesh.setHeight(100, 100, 8);
+	//worldMesh.createMountain(10, 10);
+	//worldMesh.createMountain(20, 20);
+	//worldMesh.createMountain(30, 30);
+	//worldMesh.createMountain(40, 40);
+	//worldMesh.createMountain(50, 50);
+	worldMesh.createMountain(60, 60);
 	Mesh riverMesh = worldMesh.createStraightRiver(100, 100);
+	Mesh riverMesh2 = worldMesh.createStraightRiver(120, 100);
+	Mesh riverMesh3 = worldMesh.createStraightRiver(80, 100);
 	Mesh worldColorMesh = worldMesh.createColorMesh();
 	float* world = worldMesh.getvertices();
 	for (int i = 0; i < 100; i++) {
@@ -100,6 +109,8 @@ int main()
 
 	fullWorld.bindData();
 	riverMesh.bindData();
+	riverMesh2.bindData();
+	riverMesh3.bindData();
 	
 	//unsigned* ind = worldMesh.getindices();
 	//for (int i = 0; i < 300; i++) {
@@ -156,6 +167,8 @@ int main()
 		waterShader.setMat4("view", view);
 		waterShader.setMat4("model", model);
 		riverMesh.drawMesh();
+		riverMesh2.drawMesh();
+		riverMesh3.drawMesh();
 
 
 		//glBindVertexArray(worldRenderer.getVAO());
